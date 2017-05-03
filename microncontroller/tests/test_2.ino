@@ -11,8 +11,8 @@ Name: test_2.ino
 Desc: First collected test, we'll clean this up eventually and probably rename it.
       Ideally, this test will make sure that the microcontroller, serial RS485 line
       and other basics components are runnning.
-Test: We got this script releasing the breaks, however was not able to init the chair
-      without the joystick inline and online.
+Testing: Modified vals for sharkStartup. The index for this command seems to be to long
+         by one, so we cutt out index 3.
 *******************************************************************************************/
 
 
@@ -181,20 +181,31 @@ void sharkStartup () {
        factory notes the date of manufacture and such boring stuff...
     */
 
-    data[0] = (0x74);   //
-    data[1] = (130);    //
-    data[2] = (133);    //
-    data[3] = (130);    //
-    data[4] = (128);    //
-    data[5] = (136);    //
-    data[6] = (205);    //
-    data[7] = (160);    //
-    data[8] = (128);    //
-    byte sum = 0;
-    for (int i = 0; i < 9; i++)
-      sum += data[i] & 0x7f;
-    data[9] = 0x7f - sum;       //Checksum  OK = (141)
-    data[10] = (15);      // all packets end with this identifier
+    data[0] = (0x81);   //
+    data[1] = (137);    //
+    data[2] = (134);    //
+    data[3] = (128);    //
+    data[4] = (133);    //
+    data[5] = (138);    //
+    data[6] = (166);    //
+    data[7] = (130);    //
+    data[8] = (196);
+    data[9] = (15);      // all packets end with this identifier
+
+    // data[0] = (0x74);   //
+    // data[1] = (130);    //
+    // data[2] = (133);    //
+    // data[3] = (130);    //
+    // data[4] = (128);    //
+    // data[5] = (136);    //
+    // data[6] = (205);    //
+    // data[7] = (160);    //
+    // data[8] = (128);    //
+    // byte sum = 0;
+    // for (int i = 0; i < 9; i++)
+    //   sum += data[i] & 0x7f;
+    // data[9] = 0x7f - sum;       //Checksum  OK = (141)
+    // data[10] = (15);      // all packets end with this identifier
 
     Serial.println("Statup Data");
     for (unsigned char i = 0; i < 10; i++){
