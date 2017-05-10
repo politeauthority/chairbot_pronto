@@ -159,7 +159,7 @@ void societyPeopleStartup(){
     /*build start up packet
        factory notes the date of manufacture and such boring stuff...
     */
-
+  {
     data[0] = (0x81);   //
     data[1] = (137);    //
     data[2] = (134);    //
@@ -175,6 +175,7 @@ void societyPeopleStartup(){
       Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
+  }
   delay(12);
   Serial.println("Society People Starkup fin");
 }
