@@ -1,19 +1,4 @@
-/******************************************************************************************
-  _____  ___     __  ____    ___ ______  __ __      ____   ___   ___   ____  _        ___ 
- / ___/ /   \   /  ]|    |  /  _]      ||  |  |    |    \ /  _] /   \ |    \| |      /  _]
-(   \_ |     | /  /  |  |  /  [_|      ||  |  |    |  o  )  [_ |     ||  o  ) |     /  [_ 
- \__  ||  O  |/  /   |  | |    _]_|  |_||  ~  |    |   _/    _]|  O  ||   _/| |___ |    _]
- /  \ ||     /   \_  |  | |   [_  |  |  |___, |    |  | |   [_ |     ||  |  |     ||   [_ 
- \    ||     \     | |  | |     | |  |  |     |    |  | |     ||     ||  |  |     ||     |
-  \___| \___/ \____||____||_____| |__|  |____/     |__| |_____| \___/ |__|  |_____||_____|
-                                                                                          
-Name: test_2.ino
-Desc: First collected test, we'll clean this up eventually and probably rename it.
-      Ideally, this test will make sure that the microcontroller, serial RS485 line
-      and other basics components are runnning.
-Test: We got this script releasing the breaks, however was not able to init the chair
-      without the joystick inline and online.
-*******************************************************************************************/
+// ALIX
 
 
 // This sketch is to emulate the packet of data that the Shark Joystick sends
@@ -127,7 +112,7 @@ void setup() {
   while (! Serial); // Wait untilSerial is ready - Leonardo
   Serial.println("Serial monitor enabled");
   delay(500);
-  sharkStartup();  
+  societyPeopleStartuo();
   onOffState = HIGH;
 }
 
@@ -163,6 +148,37 @@ void loop() {
 
 
 
+void societyPeopleStartuo(){
+  Serial.println("Society People Startup");
+  {
+    digitalWrite(dataSwitch, HIGH);  // Flip data switch, HIGH = 24v is connected to emulator bus
+    delay(298)         ;// Allow 24v pulse for 300ms +/- 20ms
+    digitalWrite(dataSwitch, LOW);    // Flip dats switch, LOW = data connected to emulator bus
+    delay(10);
+  }
+    /*build start up packet
+       factory notes the date of manufacture and such boring stuff...
+    */
+
+    data[0] = (0x81);   //
+    data[1] = (137);    //
+    data[2] = (134);    //
+    data[3] = (128);    //
+    data[4] = (133);    //
+    data[5] = (138);    //
+    data[6] = (166);    //
+    data[7] = (130);    //
+    data[8] = (196);
+    data[9] = (15);      // all packets end with this identifier
+    Serial.println("Statup Data");
+    for (unsigned char i = 0; i < 10; i++){
+      Serial.println(data[i]);
+      sharkSerial.write(data[i]);
+    }
+  }
+  delay(12);
+  Serial.println("Society People Starkup fin");
+}
 
 // my Dynamic Shark start up sequence, other joysticks will have different start up packets.
 
@@ -181,20 +197,31 @@ void sharkStartup () {
        factory notes the date of manufacture and such boring stuff...
     */
 
-    data[0] = (0x74);   //
-    data[1] = (130);    //
-    data[2] = (133);    //
-    data[3] = (130);    //
-    data[4] = (128);    //
-    data[5] = (136);    //
-    data[6] = (205);    //
-    data[7] = (160);    //
-    data[8] = (128);    //
-    byte sum = 0;
-    for (int i = 0; i < 9; i++)
-      sum += data[i] & 0x7f;
-    data[9] = 0x7f - sum;       //Checksum  OK = (141)
-    data[10] = (15);      // all packets end with this identifier
+    data[0] = (0x81);   //
+    data[1] = (137);    //
+    data[2] = (134);    //
+    data[3] = (128);    //
+    data[4] = (133);    //
+    data[5] = (138);    //
+    data[6] = (166);    //
+    data[7] = (130);    //
+    data[8] = (196);
+    data[9] = (15);      // all packets end with this identifier
+
+    // data[0] = (0x74);   //
+    // data[1] = (130);    //
+    // data[2] = (133);    //
+    // data[3] = (130);    //
+    // data[4] = (128);    //
+    // data[5] = (136);    //
+    // data[6] = (205);    //
+    // data[7] = (160);    //
+    // data[8] = (128);    //
+    // byte sum = 0;
+    // for (int i = 0; i < 9; i++)
+    //   sum += data[i] & 0x7f;
+    // data[9] = 0x7f - sum;       //Checksum  OK = (141)
+    // data[10] = (15);      // all packets end with this identifier
 
     Serial.println("Statup Data");
     for (unsigned char i = 0; i < 10; i++){
