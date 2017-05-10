@@ -112,7 +112,7 @@ void setup() {
   while (! Serial); // Wait untilSerial is ready - Leonardo
   Serial.println("Serial monitor enabled");
   delay(500);
-  societyPeopleStartuo();
+  societyPeopleStartup();
   onOffState = HIGH;
 }
 
@@ -148,7 +148,7 @@ void loop() {
 
 
 
-void societyPeopleStartuo(){
+void societyPeopleStartup(){
   Serial.println("Society People Startup");
   {
     digitalWrite(dataSwitch, HIGH);  // Flip data switch, HIGH = 24v is connected to emulator bus
@@ -175,7 +175,6 @@ void societyPeopleStartuo(){
       Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
-  }
   delay(12);
   Serial.println("Society People Starkup fin");
 }
