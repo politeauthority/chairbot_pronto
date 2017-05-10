@@ -1,17 +1,30 @@
-// ALIX
+/******************************************************************************************
+  _____  ___     __  ____    ___ ______  __ __      ____   ___   ___   ____  _        ___ 
+ / ___/ /   \   /  ]|    |  /  _]      ||  |  |    |    \ /  _] /   \ |    \| |      /  _]
+(   \_ |     | /  /  |  |  /  [_|      ||  |  |    |  o  )  [_ |     ||  o  ) |     /  [_ 
+ \__  ||  O  |/  /   |  | |    _]_|  |_||  ~  |    |   _/    _]|  O  ||   _/| |___ |    _]
+ /  \ ||     /   \_  |  | |   [_  |  |  |___, |    |  | |   [_ |     ||  |  |     ||   [_ 
+ \    ||     \     | |  | |     | |  |  |     |    |  | |     ||     ||  |  |     ||     |
+  \___| \___/ \____||____||_____| |__|  |____/     |__| |_____| \___/ |__|  |_____||_____|
+                                                                                          
+Name: test_2.ino
+Desc: First collected test, we'll clean this up eventually and probably rename it.
+      Ideally, this test will make sure that the microcontroller, serial RS485 line
+      and other basics components are runnning.
+Test: We got this script releasing the breaks, however was not able to init the chair
+      without the joystick inline and online.
+NOTE: BEST WORKING TEST with A going LOW and B going HIGH
 
+License: FreeBSD
+Copyright (c) 2015, Tony Matthews
+All rights reserved.
 
-// This sketch is to emulate the packet of data that the Shark Joystick sends
-/******************************************************************************
-      Author: Tony Matthews ammatthews at gmail dot com
-      BitMath coding by - Irving
-      Also coding help from Woody and Lenny from the UK
-      Building on work by Jim with his RoboBoard + distance sensor's wheelchair.
-      License: FreeBSD
-    ******************************************************************************/
-/******************************************************************************
-  Copyright (c) 2015, Tony Matthews
-  All rights reserved.
+This sketch is to emulate the packet of data that the Shark Joystick sends
+
+Author: Tony Matthews ammatthews at gmail dot com
+BitMath coding by - Irving
+Also coding help from Woody and Lenny from the UK
+Building on work by Jim with his RoboBoard + distance sensor's wheelchair.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions are met:
@@ -182,7 +195,7 @@ void sharkStartup () {
     data[10] = (15);      // all packets end with this identifier
 
     Serial.println("Statup Data");
-    for (unsigned char i = 0; i < 11; i++){
+    for (unsigned char i = 0; i < 10; i++){
       Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
