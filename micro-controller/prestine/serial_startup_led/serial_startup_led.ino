@@ -174,7 +174,6 @@ void societyPeopleStartup () {
     delay(298);
     digitalWrite(diPin, HIGH);
     digitalWrite(roPin, LOW);
-    delay(5);
   }
 
   {
@@ -205,12 +204,12 @@ void societyPeopleStartup () {
 
     Serial.println("Statup Data");
     for (unsigned char i = 0; i < 11; i++){
-      Serial.println(data[i]);
+      //  Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
     delay(1);
     for (unsigned char i = 11; i < 14; i++){
-      Serial.println(data[i]);
+      //Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
     delay(1);
