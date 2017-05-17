@@ -149,7 +149,7 @@ void loop() {
   if (onOffState == HIGH && start_has_run == true){
     digitalWrite(led, onOffState);    //Keep arduino LED 'on' as indication of mode arduino is in
     Serial.println("Run Start");
-    sharkRun();
+    societyRun();
     Serial.println("Run End");
   }
   Serial.println(digitalRead(start_pin));
@@ -157,30 +157,63 @@ void loop() {
     societyPeopleStartup();
     start_has_run = true;
   }
-  delay (10); // this is the time between packets , delay put here to be debounce for onoff switch.
+  delay (12); // this is the time between packets , delay put here to be debounce for onoff switch.
 }
-
-
-
-
-// my Dynamic Shark start up sequence, other joysticks will have different start up packets.
 
 void societyPeopleStartup () {
   Serial.println("Scoiety People start");
   digitalWrite(dePin, HIGH); // Hold dePin high when transmitting.
   {
+    // test 1
+    digitalWrite(dataSwitch, HIGH);
     digitalWrite(diPin, LOW);
     digitalWrite(roPin, HIGH);
     delay(298);
     digitalWrite(diPin, HIGH);
     digitalWrite(roPin, LOW);
+    digitalWrite(dataSwitch, LOW);
+
+    // //test 2
+    // digitalWrite(diPin, HIGH);
+    // digitalWrite(roPin, HIGH);
+    // delay(298);
+    // digitalWrite(diPin, HIGH);
+    // digitalWrite(roPin, HIGH);
+
+    // //test 3
+    // delay(1000);
+    // digitalWrite(diPin, LOW);
+    // digitalWrite(roPin, LOW);
+    // delay(298);
+    // digitalWrite(diPin, LOW);
+    // digitalWrite(roPin, LOW);
+
+    // // test 4
+    // delay(1000);
+    // digitalWrite(diPin, HIGH);
+    // digitalWrite(roPin, LOW);
+    // delay(298);
+    // digitalWrite(diPin, LOW);
+    // digitalWrite(roPin, HIGH);
+
+    // //test 5
+    // delay(1000);
+    // digitalWrite(diPin, LOW);
+    // digitalWrite(roPin, LOW);
+    // delay(298);
+    // digitalWrite(diPin, HIGH);
+    // digitalWrite(roPin, HIGH);
+    
+    // //test 6
+    // delay(1000);
+    // digitalWrite(diPin, HIGH);
+    // digitalWrite(roPin, HIGH);
+    // delay(298);
+    // digitalWrite(diPin, LOW);
+    // digitalWrite(roPin, LOW);
+
   }
-
   {
-    /*build start up packet
-       factory notes the date of manufacture and such boring stuff...
-    */
-
     data[0] = (0x74);   //
     data[1] = (129);    //
     data[2] = (141);    //
@@ -197,19 +230,11 @@ void societyPeopleStartup () {
     data[13] = (218);
     data[14] = (15);
     byte sum = 0;
-    // for (int i = 0; i < 9; i++)
-    //   sum += data[i] & 0x7f;
-    // data[9] = 0x7f - sum;       //Checksum  OK = (141)
-    // data[10] = (15);      // all packets end with this identifier
-
-    Serial.println("Statup Data");
     for (unsigned char i = 0; i < 11; i++){
-      //  Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
     delay(1);
     for (unsigned char i = 11; i < 14; i++){
-      //Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
     delay(1);
@@ -222,6 +247,58 @@ void societyPeopleStartup () {
   digitalWrite(start_led, HIGH);
 }
 
+void societyRun() {
+  {
+    digitalWrite(dePin, HIGH);     // set MAX485 to High = TX active.
+  }
+  {
+    maxSpeed = 255;     // this is a fixed value ...being full speed on the Shark Remote
+    idledata[0] = (0x60);    // Packet type identifier
+    onOffVal = digitalRead(onOffPin);
+    if(onOffVal == LOW){
+      idledata[1] = 0xBF; // Joystick speed reading (7 MSbs) oXFF
+      idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
+
+    }
+    if(onOffVal == HIGH){
+        idledata[1] = 0xFF; // Joystick speed reading (7 MSbs) oXFF
+        idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
+    }
+    idledata[3] = 0xFF;   // Speed pot reading (7 MSbs)
+    idledata[4] = 225;
+    idledata[5] = 128;     // default horn off 128 , horn on value is 130
+    idledata[6] = 132;     // Value read during data capture, taken to be the 'on' value.
+    idledata[7] = 128;     // chair mode/ drive 128, tilt/aux output 129
+    byte sum = 0;
+    for (int i = 0; i < 8; i++)
+      sum += idledata[i] & 0x7f;
+    idledata[8] = (255 - (sum & 127));
+
+    idledata[9] = 15;       // all packets end with this identifier
+    for (unsigned char i = 0; i < 10; i++){
+      sharkSerial.write(idledata[i]);      
+    }
+    delayMicroseconds(1500);
+    idledata[0] = (0x61);
+    idledata[1] = 146;
+    idledata[2] = 128;
+    idledata[3] = 128;
+    idledata[4] = 128;
+    idledata[5] = 128;
+    idledata[6] = 128;
+    idledata[7] = 128;
+    idledata[8] = 140;
+    idledata[9] = 15;
+    for (unsigned char i = 0; i < 9; i++){
+      sharkSerial.write(idledata[i]);      
+    }
+    delay(1);
+    sharkSerial.write(idledata[9]);      
+
+    // sharkSerial.write()
+  }
+  digitalWrite(dePin, LOW);     // set MAX485 to low = RX active.
+}
 
 void sharkRun() {
   {
@@ -386,9 +463,8 @@ void sharkRun() {
 //              Serial.println("Data TX end");
   }
   digitalWrite(dePin, LOW);     // set MAX485 to low = RX active.
-
-
 }
+
 
 
 
