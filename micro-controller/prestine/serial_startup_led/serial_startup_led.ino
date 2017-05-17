@@ -104,6 +104,7 @@ word direction;    // int (16 bit) - signed number from -32768 to 32767
 
 // data packet
 unsigned char data[14];
+unsigned char idledata[9];
 unsigned long timer = 0;
 
 
@@ -144,18 +145,19 @@ void loop() {
   // Code to monitor 'Software' on/off button 'onOffPin'
 
   // Check state, if "on" , "turn off"
-
-  if (onOffState == HIGH && start_has_run == HIGH){
+  Serial.println("Script Idle");
+  if (onOffState == HIGH && start_has_run == true){
     digitalWrite(led, onOffState);    //Keep arduino LED 'on' as indication of mode arduino is in
+    Serial.println("Run Start");
     sharkRun();
-    Serial.println("Script Idle");
+    Serial.println("Run End");
   }
   Serial.println(digitalRead(start_pin));
   if (start_has_run == LOW && digitalRead(start_pin) == HIGH){
     societyPeopleStartup();
-    start_has_run = HIGH;
+    start_has_run = true;
   }
-  delay (16); // this is the time between packets , delay put here to be debounce for onoff switch.
+  delay (10); // this is the time between packets , delay put here to be debounce for onoff switch.
 }
 
 
@@ -171,8 +173,8 @@ void societyPeopleStartup () {
     digitalWrite(roPin, HIGH);
     delay(298);
     digitalWrite(diPin, HIGH);
-    digitalWrite(roPin, LOW);delay(10);
-
+    digitalWrite(roPin, LOW);
+    delay(5);
   }
 
   {
@@ -202,12 +204,21 @@ void societyPeopleStartup () {
     // data[10] = (15);      // all packets end with this identifier
 
     Serial.println("Statup Data");
-    for (unsigned char i = 0; i < 14; i++){
+    for (unsigned char i = 0; i < 11; i++){
       Serial.println(data[i]);
       sharkSerial.write(data[i]);
     }
+    delay(1);
+    for (unsigned char i = 11; i < 14; i++){
+      Serial.println(data[i]);
+      sharkSerial.write(data[i]);
+    }
+    delay(1);
+    Serial.println(data[14]);
+    sharkSerial.write(data[14]);
+    
   }
-  delay(12);
+  //delay(12);
   Serial.println("Shark Starkup fin");
   digitalWrite(start_led, HIGH);
 }
@@ -215,47 +226,52 @@ void societyPeopleStartup () {
 
 void sharkRun() {
   {
+//          Serial.println("TX HIGH");
     digitalWrite(dePin, HIGH);     // set MAX485 to High = TX active.
-    {
-      directionPotVal = pulseIn(directionPin, HIGH);
-      directionPotVal = constrain(directionPotVal, 1100, 1900);
-      directionPotVal = map(directionPotVal, 1000, 2000, 1, 1023);  // Power base only recoginizes values in this range
-
-     
-
-      // Woody's Deadband code
-      if (directionPotVal > (512 + Deadband)) //deadband defined as 200
-        direction = map(directionPotVal, (512 + Deadband), 1024, 513, 1023); // Turn Right ??
-      else if
-      (directionPotVal < (512 - Deadband))
-        direction = map(directionPotVal, 0, (512 - Deadband), 1, 511); //Turn Left ??
-      else
-        direction = 512;    // 512 = stop
-    }
-    {
-      speedPotVal = pulseIn(speedPin, HIGH);
-      speedPotVal = constrain(speedPotVal, 1000, 2000);
-      speedPotVal = map(speedPotVal, 1000, 2000, 1023, 1);
-      Serial.println(speedPotVal);
-
-
-      // Woody's Deadband code
-      if (speedPotVal > (512 + Deadband)){ //deadband defined as 200
-        speed = map(speedPotVal, (512 + Deadband), 1024, 513, 1023); // Forwards ??
-        Serial.println("speed");
-        Serial.println(speed);
-      }else if(speedPotVal < (512 - Deadband)){
-        speed = map(speedPotVal, 0, (512 - Deadband), 1, 511);      // Reverse ??
-        Serial.println("speed");
-        Serial.println(speed);
-      }else{
-        speed = 512;    // 512 = stop
-        Serial.println("speed");
-        Serial.println(speed);
-      }
-    }
-
-
+//    {
+//      // directionPotVal = pulseIn(directionPin, HIGH);
+//      directionPotVal = 1500;
+//      directionPotVal = constrain(directionPotVal, 1100, 1900);
+//      directionPotVal = map(directionPotVal, 1000, 2000, 1, 1023);  // Power base only recoginizes values in this range
+//
+//     
+//
+//      // Woody's Deadband code
+//      if (directionPotVal > (512 + Deadband)) //deadband defined as 200
+//        direction = map(directionPotVal, (512 + Deadband), 1024, 513, 1023); // Turn Right ??
+//      else if
+//      (directionPotVal < (512 - Deadband))
+//        direction = map(directionPotVal, 0, (512 - Deadband), 1, 511); //Turn Left ??
+//      else
+//        direction = 512;    // 512 = stop
+//    }
+//              Serial.println("Direction Done");
+//    {
+//      //speedPotVal = pulseIn(speedPin, HIGH);
+//      speedPotVal = 1000;
+//      speedPotVal = constrain(speedPotVal, 1000, 2000);
+//      speedPotVal = map(speedPotVal, 1000, 2000, 1023, 1);
+//      Serial.println(speedPotVal);
+//
+//
+//      // Woody's Deadband code
+//      if (speedPotVal > (512 + Deadband)){ //deadband defined as 200
+//        speed = map(speedPotVal, (512 + Deadband), 1024, 513, 1023); // Forwards ??
+//        Serial.println("speed");
+//        Serial.println(speed);
+//      }else if(speedPotVal < (512 - Deadband)){
+//        speed = map(speedPotVal, 0, (512 - Deadband), 1, 511);      // Reverse ??
+//        Serial.println("speed");
+//        Serial.println(speed);
+//      }else{
+//        speed = 512;    // 512 = stop
+//        Serial.println("speed");
+//        Serial.println(speed);
+//      }
+//    }
+//              Serial.println("Speed Done");
+//
+//
   }
   {
     /* Following are notes on Shark Remote data Byte information packets (what each byte holds data for)
@@ -275,8 +291,9 @@ void sharkRun() {
     /* Build "shark remote" data serial packet or in this case the emulator data packet
          Interpretation will be slotted in here for sensors added to the power chairs
     */
+//              Serial.println("Data Start");
     maxSpeed = 255;     // this is a fixed value ...being full speed on the Shark Remote
-    data[0] = (0x60);    // Packet type identifier
+    idledata[0] = (0x60);    // Packet type identifier
 
     // Assign joystick and speedpot MSBs values to data[1 ] - data[3], setting MSB = 1
     // Code thanks to Irvings bitgenius.
@@ -288,31 +305,32 @@ void sharkRun() {
 
     onOffVal = digitalRead(onOffPin);
     if(onOffVal == LOW){
-      Serial.println("Im low");
-      Serial.println(onOffVal);
-      data[1] = 0xBF; // Joystick speed reading (7 MSbs) oXFF
-      data[2] = 0xBF; // Joystick direction reading (7 MSbs)
+//      Serial.println("Im low");
+//      Serial.println(onOffVal);
+      idledata[1] = 0xBF; // Joystick speed reading (7 MSbs) oXFF
+      idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
 
     }
     if(onOffVal == HIGH){
-        Serial.println("Im high");
-        Serial.println(onOffVal);
-        data[1] = 0xFF; // Joystick speed reading (7 MSbs) oXFF
-        data[2] = 0xBF; // Joystick direction reading (7 MSbs)
+//        Serial.println("Im high");
+//        Serial.println(onOffVal);
+        idledata[1] = 0xFF; // Joystick speed reading (7 MSbs) oXFF
+        idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
     }
 
-    data[3] = 0xFF;   // Speed pot reading (7 MSbs)
-
+    idledata[3] = 0xFF;   // Speed pot reading (7 MSbs)
+//          Serial.println("Data set done");
     /* encode LSBs into data[4] as follows
       bit 6: Speed pot reading LSB
       bits 5-3: Joystick speed reading (3 LSBs)
       bits 2-0: Joystick direction reading (3 LSBs)
       and set MSB = 1 */
 
-    data[4] = 0x80 | ((maxSpeed & 0x1) << 6) | ((speed & 0x7) << 3) | (direction & 0x7);
+//    idledata[4] = 0x80 | ((maxSpeed & 0x1) << 6) | ((speed & 0x7) << 3) | (direction & 0x7);
+    idledata[4] = 225;
     // end of code for data 4
 
-    data[5] = 128;     // default horn off 128 , horn on value is 130
+    idledata[5] = 128;     // default horn off 128 , horn on value is 130
     /*
       bit 6: Joystick Error (indicates joystick mirror fault or some such problem when set).
       bit 5: Speed pot Error (indicates out-of range error or some such problem when set).
@@ -323,7 +341,7 @@ void sharkRun() {
       bit 0: Lock switch state ( set when switch is pressed)
     */
 
-    data[6] = 132;     // Value read during data capture, taken to be the 'on' value.
+    idledata[6] = 132;     // Value read during data capture, taken to be the 'on' value.
     /*
       bit 6: Hazard light request
       bit 5: Left Indicator request
@@ -335,7 +353,7 @@ void sharkRun() {
       ready to comply.
     */
 
-    data[7] = 128;     // chair mode/ drive 128, tilt/aux output 129
+    idledata[7] = 128;     // chair mode/ drive 128, tilt/aux output 129
     /*bit 6: Not used
       bit 5: Local non-critical fault (causes "limp" mode)
       bit 4: Headlight request
@@ -347,24 +365,26 @@ void sharkRun() {
       04-0F currently undefined
     */
 
-
+//          Serial.println("checksum start");
     // Checksum calculations - thanks to Irving and Jim...and Tony
     byte sum = 0;
     for (int i = 0; i < 8; i++)
-      sum += data[i] & 0x7f;
-    data[8] = (255 - (sum & 127));
+      sum += idledata[i] & 0x7f;
+    idledata[8] = (255 - (sum & 127));
+//              Serial.println("checksum end");
     /*       Finally all packets except for the Transmit Finished packet
              shall include a one-byte checksum, which is defined as
              (0x7F - (least-significant 7 bits of ( sum of all data bytes and start byte ) ).
     */
 
-    data[9] = 15;       // all packets end with this identifier
-    Serial.println("Idle Data");
+    idledata[9] = 15;       // all packets end with this identifier
+//    Serial.println("Data TX start");
     for (unsigned char i = 0; i < 10; i++){
-      sharkSerial.write(data[i]);
-      Serial.print(data[i]);
-      Serial.println("");
+      sharkSerial.write(idledata[i]);
+//      Serial.print(idledata[i]);
+//      Serial.println("");
     }
+//              Serial.println("Data TX end");
   }
   digitalWrite(dePin, LOW);     // set MAX485 to low = RX active.
 
