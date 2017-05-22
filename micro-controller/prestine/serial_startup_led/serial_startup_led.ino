@@ -252,222 +252,85 @@ void societyRun() {
     digitalWrite(dePin, HIGH);     // set MAX485 to High = TX active.
   }
   {
+    // FIRST HALF OF PACKET
     maxSpeed = 255;     // this is a fixed value ...being full speed on the Shark Remote
     idledata[0] = (0x60);    // Packet type identifier
     onOffVal = digitalRead(onOffPin);
     if(onOffVal == LOW){
-      idledata[1] = 0xBF; // Joystick speed reading (7 MSbs) oXFF
-      idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
-
+      idledata[1] = 191; 
+      idledata[2] = 192;
+      idledata[4] = 234;
+      idledata[8] = 179;
     }
     if(onOffVal == HIGH){
-        idledata[1] = 0xFF; // Joystick speed reading (7 MSbs) oXFF
-        idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
+      idledata[1] = 255;
+      idledata[2] = 189;
+      idledata[4] = 250;
+      idledata[8] = 230;
     }
-    idledata[3] = 0xFF;   // Speed pot reading (7 MSbs)
-    idledata[4] = 225;
+
+    idledata[3] = 255;   // Speed pot reading (7 MSbs)
     idledata[5] = 128;     // default horn off 128 , horn on value is 130
     idledata[6] = 132;     // Value read during data capture, taken to be the 'on' value.
     idledata[7] = 128;     // chair mode/ drive 128, tilt/aux output 129
-    byte sum = 0;
-    for (int i = 0; i < 8; i++)
-      sum += idledata[i] & 0x7f;
-    idledata[8] = (255 - (sum & 127));
 
-    idledata[9] = 15;       // all packets end with this identifier
+    idledata[9] = 15;
     for (unsigned char i = 0; i < 10; i++){
       sharkSerial.write(idledata[i]);      
     }
-    delayMicroseconds(1500);
+    
+    delayMicroseconds(1500);    // byte sum = 0;
+    // SECOND HALF OF PACKET
+    if(onOffVal == LOW){
+      idledata[1] = 128; 
+      idledata[4] = 128;
+      idledata[7] = 128;
+      idledata[8] = 158;
+    }
+    if(onOffVal == HIGH){
+      idledata[1] = 140;
+      idledata[4] = 160;
+      idledata[7] = 157;
+      idledata[8] = 213;
+    }
     idledata[0] = (0x61);
-    idledata[1] = 146;
     idledata[2] = 128;
     idledata[3] = 128;
-    idledata[4] = 128;
     idledata[5] = 128;
     idledata[6] = 128;
-    idledata[7] = 128;
-    idledata[8] = 140;
     idledata[9] = 15;
     for (unsigned char i = 0; i < 9; i++){
       sharkSerial.write(idledata[i]);      
     }
     delay(1);
-    sharkSerial.write(idledata[9]);      
+    sharkSerial.write(idledata[9]);  
+
+
+    // for (int i = 0; i < 8; i++)
+    //   sum += idledata[i] & 0x7f;
+    // idledata[8] = (255 - (sum & 127));
+
+    // for (unsigned char i = 0; i < 10; i++){
+    //   sharkSerial.write(idledata[i]);      
+    // }
+    // delayMicroseconds(1500);
+    // idledata[0] = (0x61);
+    // idledata[1] = 146;
+    // idledata[2] = 128;
+    // idledata[3] = 128;
+    // idledata[4] = 128;
+    // idledata[5] = 128;
+    // idledata[6] = 128;
+    // idledata[7] = 128;
+    // idledata[8] = 140;
+    // idledata[9] = 15;
+    // for (unsigned char i = 0; i < 9; i++){
+    //   sharkSerial.write(idledata[i]);      
+    // }
+    // delay(1);
+    // sharkSerial.write(idledata[9]);      
 
     // sharkSerial.write()
   }
   digitalWrite(dePin, LOW);     // set MAX485 to low = RX active.
 }
-
-void sharkRun() {
-  {
-//          Serial.println("TX HIGH");
-    digitalWrite(dePin, HIGH);     // set MAX485 to High = TX active.
-//    {
-//      // directionPotVal = pulseIn(directionPin, HIGH);
-//      directionPotVal = 1500;
-//      directionPotVal = constrain(directionPotVal, 1100, 1900);
-//      directionPotVal = map(directionPotVal, 1000, 2000, 1, 1023);  // Power base only recoginizes values in this range
-//
-//     
-//
-//      // Woody's Deadband code
-//      if (directionPotVal > (512 + Deadband)) //deadband defined as 200
-//        direction = map(directionPotVal, (512 + Deadband), 1024, 513, 1023); // Turn Right ??
-//      else if
-//      (directionPotVal < (512 - Deadband))
-//        direction = map(directionPotVal, 0, (512 - Deadband), 1, 511); //Turn Left ??
-//      else
-//        direction = 512;    // 512 = stop
-//    }
-//              Serial.println("Direction Done");
-//    {
-//      //speedPotVal = pulseIn(speedPin, HIGH);
-//      speedPotVal = 1000;
-//      speedPotVal = constrain(speedPotVal, 1000, 2000);
-//      speedPotVal = map(speedPotVal, 1000, 2000, 1023, 1);
-//      Serial.println(speedPotVal);
-//
-//
-//      // Woody's Deadband code
-//      if (speedPotVal > (512 + Deadband)){ //deadband defined as 200
-//        speed = map(speedPotVal, (512 + Deadband), 1024, 513, 1023); // Forwards ??
-//        Serial.println("speed");
-//        Serial.println(speed);
-//      }else if(speedPotVal < (512 - Deadband)){
-//        speed = map(speedPotVal, 0, (512 - Deadband), 1, 511);      // Reverse ??
-//        Serial.println("speed");
-//        Serial.println(speed);
-//      }else{
-//        speed = 512;    // 512 = stop
-//        Serial.println("speed");
-//        Serial.println(speed);
-//      }
-//    }
-//              Serial.println("Speed Done");
-//
-//
-  }
-  {
-    /* Following are notes on Shark Remote data Byte information packets (what each byte holds data for)
-        Type 00 SR General Information
-      This packet contains the joystick speed and direction ( 10 bit readings), speed pot setting (8 bit reading), and input and status
-      bits.
-      The minimum allowable length for this packet is 6 data bytes.
-      If the wheelchair motor controller (SPM) receives only bytes 0-5, and the checksum is correct, the SPM shall assume that it is operating with a previous
-      version of the Shark Remote and take the following actions:
-      􀁺 Disregard the Operating Mode in byte 5
-      􀁺 Disable all lighting and actuator functionality.
-      Note that these actions shall be taken regardless of whether the SR indicated in its power-up packet that it has lighting and/or
-      actuator functionality.
-    */
-
-
-    /* Build "shark remote" data serial packet or in this case the emulator data packet
-         Interpretation will be slotted in here for sensors added to the power chairs
-    */
-//              Serial.println("Data Start");
-    maxSpeed = 255;     // this is a fixed value ...being full speed on the Shark Remote
-    idledata[0] = (0x60);    // Packet type identifier
-
-    // Assign joystick and speedpot MSBs values to data[1 ] - data[3], setting MSB = 1
-    // Code thanks to Irvings bitgenius.
-
-    // DYNAMIC DATA below
-    // data[1] = 0x80 | ((speed >> 3) & 0x7f); // Joystick speed reading (7 MSbs)
-    // data[2] = 0x80 | ((direction >> 3) & 0x7f); // Joystick direction reading (7 MSbs)
-    // data[3] = 0x80 | ((maxSpeed >> 1) & 0x7f);   // Speed pot reading (7 MSbs)
-
-    onOffVal = digitalRead(onOffPin);
-    if(onOffVal == LOW){
-//      Serial.println("Im low");
-//      Serial.println(onOffVal);
-      idledata[1] = 0xBF; // Joystick speed reading (7 MSbs) oXFF
-      idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
-
-    }
-    if(onOffVal == HIGH){
-//        Serial.println("Im high");
-//        Serial.println(onOffVal);
-        idledata[1] = 0xFF; // Joystick speed reading (7 MSbs) oXFF
-        idledata[2] = 0xBF; // Joystick direction reading (7 MSbs)
-    }
-
-    idledata[3] = 0xFF;   // Speed pot reading (7 MSbs)
-//          Serial.println("Data set done");
-    /* encode LSBs into data[4] as follows
-      bit 6: Speed pot reading LSB
-      bits 5-3: Joystick speed reading (3 LSBs)
-      bits 2-0: Joystick direction reading (3 LSBs)
-      and set MSB = 1 */
-
-//    idledata[4] = 0x80 | ((maxSpeed & 0x1) << 6) | ((speed & 0x7) << 3) | (direction & 0x7);
-    idledata[4] = 225;
-    // end of code for data 4
-
-    idledata[5] = 128;     // default horn off 128 , horn on value is 130
-    /*
-      bit 6: Joystick Error (indicates joystick mirror fault or some such problem when set).
-      bit 5: Speed pot Error (indicates out-of range error or some such problem when set).
-      bit 4: Local fault (such as CPU fault) (set when there is a fault)
-      bit 3: Battery charger inhibit state (set when inhibit is active)
-      bit 2: Power switch state (all bits in this byte are 1 for active, 0 for inactive).
-      bit 1: Horn switch state ( set when switch is pressed)
-      bit 0: Lock switch state ( set when switch is pressed)
-    */
-
-    idledata[6] = 132;     // Value read during data capture, taken to be the 'on' value.
-    /*
-      bit 6: Hazard light request
-      bit 5: Left Indicator request
-      bit 4: Right Indicator request
-      bit 3: Remote Inhibit. When this bit is 1, the SPM shall not drive.
-      bit 2: Programmer Comms flow control. Set when SPM MAY send HHP packets, clear when buffer space is low.
-      bit 1: Joystick Calibration active ( set when JC mode is active )
-      bit 0 : Power down / Sleep mode confirmation. Set when Sleep or Power down has been requested and the SR is
-      ready to comply.
-    */
-
-    idledata[7] = 128;     // chair mode/ drive 128, tilt/aux output 129
-    /*bit 6: Not used
-      bit 5: Local non-critical fault (causes "limp" mode)
-      bit 4: Headlight request
-      bits 3-0: Operating mode, defined as
-      00 Drive mode
-      01 Actuator 1 mode
-      02 Actuator 2 mode
-      03 Actuator 1+2 mode
-      04-0F currently undefined
-    */
-
-//          Serial.println("checksum start");
-    // Checksum calculations - thanks to Irving and Jim...and Tony
-    byte sum = 0;
-    for (int i = 0; i < 8; i++)
-      sum += idledata[i] & 0x7f;
-    idledata[8] = (255 - (sum & 127));
-//              Serial.println("checksum end");
-    /*       Finally all packets except for the Transmit Finished packet
-             shall include a one-byte checksum, which is defined as
-             (0x7F - (least-significant 7 bits of ( sum of all data bytes and start byte ) ).
-    */
-
-    idledata[9] = 15;       // all packets end with this identifier
-//    Serial.println("Data TX start");
-    for (unsigned char i = 0; i < 10; i++){
-      sharkSerial.write(idledata[i]);
-//      Serial.print(idledata[i]);
-//      Serial.println("");
-    }
-//              Serial.println("Data TX end");
-  }
-  digitalWrite(dePin, LOW);     // set MAX485 to low = RX active.
-}
-
-
-
-
-
-
-
