@@ -155,6 +155,8 @@ void loop() {
   Serial.println(digitalRead(start_pin));
   if (start_has_run == LOW && digitalRead(start_pin) == HIGH){
     societyPeopleStartup();
+    societyPacket1();
+    societyPacket2();
     start_has_run = true;
   }
   delay (12); // this is the time between packets , delay put here to be debounce for onoff switch.
@@ -172,45 +174,6 @@ void societyPeopleStartup () {
     digitalWrite(diPin, HIGH);
     digitalWrite(roPin, LOW);
     digitalWrite(dataSwitch, LOW);
-
-    // //test 2
-    // digitalWrite(diPin, HIGH);
-    // digitalWrite(roPin, HIGH);
-    // delay(298);
-    // digitalWrite(diPin, HIGH);
-    // digitalWrite(roPin, HIGH);
-
-    // //test 3
-    // delay(1000);
-    // digitalWrite(diPin, LOW);
-    // digitalWrite(roPin, LOW);
-    // delay(298);
-    // digitalWrite(diPin, LOW);
-    // digitalWrite(roPin, LOW);
-
-    // // test 4
-    // delay(1000);
-    // digitalWrite(diPin, HIGH);
-    // digitalWrite(roPin, LOW);
-    // delay(298);
-    // digitalWrite(diPin, LOW);
-    // digitalWrite(roPin, HIGH);
-
-    // //test 5
-    // delay(1000);
-    // digitalWrite(diPin, LOW);
-    // digitalWrite(roPin, LOW);
-    // delay(298);
-    // digitalWrite(diPin, HIGH);
-    // digitalWrite(roPin, HIGH);
-    
-    // //test 6
-    // delay(1000);
-    // digitalWrite(diPin, HIGH);
-    // digitalWrite(roPin, HIGH);
-    // delay(298);
-    // digitalWrite(diPin, LOW);
-    // digitalWrite(roPin, LOW);
 
   }
   {
@@ -248,89 +211,115 @@ void societyPeopleStartup () {
 }
 
 void societyRun() {
-  {
-    digitalWrite(dePin, HIGH);     // set MAX485 to High = TX active.
-  }
-  {
-    // FIRST HALF OF PACKET
-    maxSpeed = 255;     // this is a fixed value ...being full speed on the Shark Remote
-    idledata[0] = (0x60);    // Packet type identifier
-    onOffVal = digitalRead(onOffPin);
-    if(onOffVal == LOW){
-      idledata[1] = 191; 
-      idledata[2] = 192;
-      idledata[4] = 234;
-      idledata[8] = 179;
-    }
-    if(onOffVal == HIGH){
-      idledata[1] = 255;
-      idledata[2] = 189;
-      idledata[4] = 250;
-      idledata[8] = 230;
-    }
+  digitalWrite(dePin, HIGH);     // set MAX485 to High = TX active.
+  societyPacket3();
+  digitalWrite(dePin, LOW);     // set MAX485 to low = RX active.
+}
 
-    idledata[3] = 255;   // Speed pot reading (7 MSbs)
-    idledata[5] = 128;     // default horn off 128 , horn on value is 130
-    idledata[6] = 132;     // Value read during data capture, taken to be the 'on' value.
-    idledata[7] = 128;     // chair mode/ drive 128, tilt/aux output 129
-
+void societyPacket1(){
+    idledata[0] = (0x60);
+    idledata[1] = 191; 
+    idledata[2] = 192;
+    idledata[3] = 255;
+    idledata[4] = 251;
+    idledata[5] = 128;
+    idledata[6] = 140;
+    idledata[7] = 128;
+    idledata[8] = 154;
     idledata[9] = 15;
     for (unsigned char i = 0; i < 10; i++){
       sharkSerial.write(idledata[i]);      
     }
-    
-    delayMicroseconds(1500);    // byte sum = 0;
+    delayMicroseconds(1500);
     // SECOND HALF OF PACKET
-    if(onOffVal == LOW){
-      idledata[1] = 128; 
-      idledata[4] = 128;
-      idledata[7] = 128;
-      idledata[8] = 158;
-    }
-    if(onOffVal == HIGH){
-      idledata[1] = 140;
-      idledata[4] = 160;
-      idledata[7] = 157;
-      idledata[8] = 213;
-    }
     idledata[0] = (0x61);
+    idledata[1] = 128;
     idledata[2] = 128;
     idledata[3] = 128;
+    idledata[4] = 128;
     idledata[5] = 128;
     idledata[6] = 128;
+    idledata[7] = 128;
+    idledata[8] = 158;
     idledata[9] = 15;
     for (unsigned char i = 0; i < 9; i++){
       sharkSerial.write(idledata[i]);      
     }
     delay(1);
-    sharkSerial.write(idledata[9]);  
+    sharkSerial.write(idledata[9]);
+}
 
+void societyPacket2(){
+    idledata[0] = (0x60);
+    idledata[1] = 191; 
+    idledata[2] = 192;
+    idledata[3] = 255;
+    idledata[4] = 251;
+    idledata[5] = 128;
+    idledata[6] = 140;
+    idledata[7] = 128;
+    idledata[8] = 172;
+    idledata[9] = 15;
+    for (unsigned char i = 0; i < 10; i++){
+      sharkSerial.write(idledata[i]);      
+    }
+    delayMicroseconds(1500);
+    // SECOND HALF OF PACKET
+    idledata[0] = (0x61);
+    idledata[1] = 128;
+    idledata[2] = 192;
+    idledata[3] = 128;
+    idledata[4] = 128;
+    idledata[5] = 128;
+    idledata[6] = 128;
+    idledata[7] = 128;
+    idledata[8] = 222;
+    idledata[9] = 26;
+    for (unsigned char i = 0; i < 9; i++){
+      sharkSerial.write(idledata[i]);      
+    }
+    delay(1);
+    sharkSerial.write(idledata[9]);
+    delayMicroseconds(500);
+    // THIRD PART OF PACKET
+    idledata[0] = 133;
+    idledata[1] = 167;
+    idledata[2] = 185;
+    idledata[3] = 15;
+    for (unsigned char i = 0; i < 4; i++){
+      sharkSerial.write(idledata[i]);      
+    }
+}
 
-    // for (int i = 0; i < 8; i++)
-    //   sum += idledata[i] & 0x7f;
-    // idledata[8] = (255 - (sum & 127));
-
-    // for (unsigned char i = 0; i < 10; i++){
-    //   sharkSerial.write(idledata[i]);      
-    // }
-    // delayMicroseconds(1500);
-    // idledata[0] = (0x61);
-    // idledata[1] = 146;
-    // idledata[2] = 128;
-    // idledata[3] = 128;
-    // idledata[4] = 128;
-    // idledata[5] = 128;
-    // idledata[6] = 128;
-    // idledata[7] = 128;
-    // idledata[8] = 140;
-    // idledata[9] = 15;
-    // for (unsigned char i = 0; i < 9; i++){
-    //   sharkSerial.write(idledata[i]);      
-    // }
-    // delay(1);
-    // sharkSerial.write(idledata[9]);      
-
-    // sharkSerial.write()
-  }
-  digitalWrite(dePin, LOW);     // set MAX485 to low = RX active.
+void societyPacket3(){
+    idledata[0] = (0x60);
+    idledata[1] = 191; 
+    idledata[2] = 192;
+    idledata[3] = 255;
+    idledata[4] = 234;
+    idledata[5] = 128;
+    idledata[6] = 140;
+    idledata[7] = 128;
+    idledata[8] = 171;
+    idledata[9] = 15;
+    for (unsigned char i = 0; i < 10; i++){
+      sharkSerial.write(idledata[i]);      
+    }
+    delayMicroseconds(1500);
+    // SECOND HALF OF PACKET
+    idledata[0] = (0x61);
+    idledata[1] = 128;
+    idledata[2] = 192;
+    idledata[3] = 128;
+    idledata[4] = 128;
+    idledata[5] = 128;
+    idledata[6] = 128;
+    idledata[7] = 128;
+    idledata[8] = 222;
+    idledata[9] = 15;
+    for (unsigned char i = 0; i < 9; i++){
+      sharkSerial.write(idledata[i]);      
+    }
+    delay(1);
+    sharkSerial.write(idledata[9]);
 }
