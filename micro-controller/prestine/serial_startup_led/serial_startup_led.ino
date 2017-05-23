@@ -1,7 +1,7 @@
 /******************************************************************************************
   _____  ___     __  ____    ___ ______  __ __      ____   ___   ___   ____  _        ___ 
  / ___/ /   \   /  ]|    |  /  _]      ||  |  |    |    \ /  _] /   \ |    \| |      /  _]
-(   \_ |     | /  /  |  |  /  [_|      ||  |  |    |  o  )  [_ |     ||  o  ) |     /  [_ 
+(   \_ |     | /  /  |  |  /  [_|      ||  |  |    |  Oc-mod   )  [_ |     ||  o  ) |     /  [_ 
  \__  ||  O  |/  /   |  | |    _]_|  |_||  ~  |    |   _/    _]|  O  ||   _/| |___ |    _]
  /  \ ||     /   \_  |  | |   [_  |  |  |___, |    |  | |   [_ |     ||  |  |     ||   [_ 
  \    ||     \     | |  | |     | |  |  |     |    |  | |     ||     ||  |  |     ||     |
@@ -155,7 +155,9 @@ void loop() {
   Serial.println(digitalRead(start_pin));
   if (start_has_run == LOW && digitalRead(start_pin) == HIGH){
     societyPeopleStartup();
+    delay(12);
     societyPacket1();
+    delay(12);
     societyPacket2();
     start_has_run = true;
   }
@@ -278,7 +280,6 @@ void societyPacket2(){
     for (unsigned char i = 0; i < 9; i++){
       sharkSerial.write(idledata[i]);      
     }
-    delay(1);
     sharkSerial.write(idledata[9]);
     delayMicroseconds(500);
     // THIRD PART OF PACKET
@@ -286,9 +287,11 @@ void societyPacket2(){
     idledata[1] = 167;
     idledata[2] = 185;
     idledata[3] = 15;
-    for (unsigned char i = 0; i < 4; i++){
+    for (unsigned char i = 0; i < 3; i++){
       sharkSerial.write(idledata[i]);      
     }
+    delay(1);
+    sharkSerial.write(idledata[3]);
 }
 
 void societyPacket3(){
